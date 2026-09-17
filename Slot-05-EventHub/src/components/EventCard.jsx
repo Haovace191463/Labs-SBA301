@@ -1,37 +1,37 @@
-import { Badge, Card } from "react-bootstrap";
+import { Badge, Button, Card } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
-function EventCard({ event, onSelect }) {
+function EventCard({ event }) {
     return (
-        <Card className="h-100 shadow-sm"
-              onClick={() => onSelect(event)}>
-            <Card.Img
-                variant="top"
-                src={event.image}
-                alt={event.title}
-            />
-
+        <Card className="h-100 shadow-sm">
             <Card.Body>
-                <div className="d-flex justify-content-between align-items-start gap-2">
-                    <Card.Title>{event.title}</Card.Title>
-
+                <div className="mb-2">
                     {event.featured && (
-                        <Badge bg="warning" text="dark">
+                        <Badge bg="warning" text="dark" className="me-2">
                             Featured
                         </Badge>
                     )}
+
+                    <Badge bg="secondary">
+                        {event.category}
+                    </Badge>
                 </div>
 
-                <Card.Text className="mb-1">
-                    <strong>Category:</strong> {event.category}
-                </Card.Text>
-
-                <Card.Text className="mb-1">
-                    <strong>Date:</strong> {event.date}
-                </Card.Text>
+                <Card.Title>{event.title}</Card.Title>
 
                 <Card.Text>
+                    <strong>Date:</strong> {event.date}
+                    <br />
                     <strong>Location:</strong> {event.location}
                 </Card.Text>
+
+                <Button
+                    as={Link}
+                    to={`/events/${event.id}`}
+                    variant="primary"
+                >
+                    View Details
+                </Button>
             </Card.Body>
         </Card>
     );
