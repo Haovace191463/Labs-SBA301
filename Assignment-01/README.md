@@ -23,7 +23,7 @@ confirmation, and basic layout navigation.
 
 - Login with mock credentials
 - Username: `Admin`
-- Password: `123456`
+- Password: `Admin`
 - Logout
 
 ### Dashboard
@@ -152,7 +152,7 @@ npm run lint
 
 ```text
 Username: Admin
-Password: 123456
+Password: Admin
 ```
 
 ## Data Handling
