@@ -11,7 +11,7 @@ function LoginPage({onLogin}) {
             setError("Please enter username and password.");
             return;
         }
-        if (username === "Admin" && password === "123456") {
+        if (username === "Admin" && password === "Admin") {
             onLogin({username: "Admin", role: 1,});
             return;
         }
