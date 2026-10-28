@@ -1,0 +1,26 @@
+package com.orchidhouse.controller;
+
+import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.orchidhouse.dto.CategoryResponse;
+import com.orchidhouse.service.CategoryService;
+
+@RestController
+@RequestMapping("/categories")
+public class CategoryController {
+
+    private final CategoryService categoryService;
+
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
+
+    @GetMapping({"", "/"})
+    public List<CategoryResponse> getAll() {
+        return categoryService.findAll();
+    }
+}
