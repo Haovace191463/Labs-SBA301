@@ -1,0 +1,14 @@
+# Logs
+*.log
+
+# Maven & IDE
+target/
+.idea/
+*.iml
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
