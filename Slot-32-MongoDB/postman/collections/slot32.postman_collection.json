@@ -1,0 +1,80 @@
+{
+  "info": {
+    "_postman_id": "5d86fc02-0fca-4a90-8bd4-32f620f88a01",
+    "name": "SBA301 Slot 32 MongoDB",
+    "description": "Runnable verification for the Slot 32 learning API. OpenAPI is the interface source of truth; this collection adds execution order and assertions.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" }
+  ],
+  "item": [
+    {
+      "name": "1 - MongoDB status",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/lab/status" },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+          "const body = pm.response.json();",
+          "pm.test('Connected to expected database', () => { pm.expect(body.connected).to.eql(true); pm.expect(body.database).to.eql('sba301_slot32'); });"
+        ] }
+      }]
+    },
+    {
+      "name": "2 - Seed five samples",
+      "request": { "method": "POST", "url": "{{baseUrl}}/api/lab/seed" },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+          "pm.test('At least five products exist', () => pm.expect(pm.response.json().products).to.be.at.least(5));"
+        ] }
+      }]
+    },
+    {
+      "name": "3 - Query embedded specs.hdmi",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/products?hdmi=true" },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+          "const rows = pm.response.json();",
+          "pm.test('Only HDMI products returned', () => { pm.expect(rows.length).to.be.above(0); rows.forEach(p => pm.expect(p.specs.hdmi).to.eql(true)); });"
+        ] }
+      }]
+    },
+    {
+      "name": "4 - Create embedded and referenced product",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Docking Station\",\n  \"price\": 129.90,\n  \"active\": true,\n  \"tags\": [\"usb-c\", \"office\"],\n  \"specs\": {\"ports\": 10, \"hdmi\": true, \"powerDeliveryW\": 100},\n  \"categoryId\": \"CAT-ACC\"\n}" },
+        "url": "{{baseUrl}}/api/products"
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+          "const body = pm.response.json();",
+          "pm.test('ObjectId-like id and nested data returned', () => { pm.expect(body.id).to.match(/^[a-f0-9]{24}$/); pm.expect(body.specs.hdmi).to.eql(true); pm.expect(body.categoryId).to.eql('CAT-ACC'); });"
+        ] }
+      }]
+    },
+    {
+      "name": "5 - Reject price type drift",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"name\": \"Bad Sample\", \"price\": \"not-a-number\"}" },
+        "url": "{{baseUrl}}/api/products"
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('Malformed type is rejected', () => pm.response.to.have.status(400));"
+        ] }
+      }]
+    }
+  ]
+}

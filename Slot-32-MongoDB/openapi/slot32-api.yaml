@@ -1,0 +1,198 @@
+openapi: 3.0.3
+info:
+  title: SBA301 Slot 32 MongoDB Learning API
+  version: 1.0.0
+  description: >-
+    API tối thiểu để kiểm chứng document model, embedded data, array, reference,
+    BSON mapping và kết nối MongoDB. File này là contract nguồn; Postman collection
+    bổ sung examples/assertions chạy được.
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/lab/status:
+    get:
+      summary: Ping deployment và trả mental model
+      operationId: getLabStatus
+      responses:
+        '200':
+          description: Driver kết nối được tới MongoDB
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabStatus'
+        '500':
+          description: Deployment không reachable hoặc cấu hình sai
+  /api/lab/seed:
+    post:
+      summary: Tạo category và 5 product mẫu nếu collection products đang rỗng
+      operationId: seedLab
+      responses:
+        '200':
+          description: Số lượng dữ liệu hiện có; dữ liệu cũ không bị xóa
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [categories, products, behavior]
+                properties:
+                  categories: { type: integer, format: int64 }
+                  products: { type: integer, format: int64 }
+                  behavior: { type: string }
+  /api/products:
+    get:
+      summary: Đọc products; hỗ trợ filter tối thiểu
+      operationId: listProducts
+      parameters:
+        - in: query
+          name: active
+          schema: { type: boolean }
+        - in: query
+          name: hdmi
+          description: Map tới nested path specs.hdmi
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Danh sách matching documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Product' }
+    post:
+      summary: Tạo product có application contract chặt
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductRequest' }
+            example:
+              name: Docking Station
+              price: 129.90
+              active: true
+              tags: [usb-c, office]
+              specs: { ports: 10, hdmi: true, powerDeliveryW: 100 }
+              categoryId: CAT-ACC
+      responses:
+        '201':
+          description: Product được tạo; Location trỏ tới resource
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+        '400':
+          description: Payload sai contract/type/range
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+        '404':
+          description: categoryId được cung cấp nhưng category không tồn tại
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+  /api/products/{id}:
+    get:
+      summary: Đọc một product bằng ObjectId dạng chuỗi trong JSON
+      operationId: getProduct
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Product tìm thấy
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+        '404':
+          description: Không có product
+  /api/categories:
+    get:
+      summary: Đọc categories được products tham chiếu
+      operationId: listCategories
+      responses:
+        '200':
+          description: Danh sách categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Category' }
+    post:
+      summary: Tạo category độc lập
+      operationId: createCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, name]
+              properties:
+                id: { type: string, pattern: '^[A-Z0-9-]+$' }
+                name: { type: string, maxLength: 80 }
+      responses:
+        '201':
+          description: Category đã lưu
+components:
+  schemas:
+    Product:
+      type: object
+      required: [id, name, price, active, createdAt]
+      properties:
+        id: { type: string, description: MongoDB ObjectId serialized as JSON string }
+        name: { type: string }
+        price: { type: number, description: Stored as BSON Decimal128 }
+        active: { type: boolean }
+        tags: { type: array, items: { type: string } }
+        specs: { $ref: '#/components/schemas/Specs' }
+        dimensions: { $ref: '#/components/schemas/Dimensions' }
+        warrantyMonths: { type: integer, minimum: 0 }
+        categoryId: { type: string, description: Manual reference; not an automatic foreign key }
+        createdAt: { type: string, format: date-time, description: Stored as BSON Date }
+    ProductRequest:
+      type: object
+      required: [name, price]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        price: { type: number, minimum: 0 }
+        active: { type: boolean, default: true }
+        tags: { type: array, items: { type: string, minLength: 1 } }
+        specs: { $ref: '#/components/schemas/Specs' }
+        dimensions: { $ref: '#/components/schemas/Dimensions' }
+        warrantyMonths: { type: integer, minimum: 0 }
+        categoryId: { type: string }
+    Specs:
+      type: object
+      properties:
+        ports: { type: integer, minimum: 0 }
+        hdmi: { type: boolean }
+        powerDeliveryW: { type: integer, minimum: 0 }
+    Dimensions:
+      type: object
+      properties:
+        widthCm: { type: number, minimum: 0 }
+        heightCm: { type: number, minimum: 0 }
+    Category:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: string }
+        name: { type: string }
+    LabStatus:
+      type: object
+      required: [connected, database, collections, mentalModel, compassReminder]
+      properties:
+        connected: { type: boolean }
+        database: { type: string }
+        collections: { type: array, items: { type: string } }
+        mentalModel: { type: string }
+        compassReminder: { type: string }
+    ApiError:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        status: { type: integer }
+        error: { type: string }
+        message: { type: string }
+        fields: { type: object, additionalProperties: { type: string } }
