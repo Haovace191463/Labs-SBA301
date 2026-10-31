@@ -1,0 +1,44 @@
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: #f4f7fb;
+}
+
+.header {
+    -fx-background-color: linear-gradient(to right, #123b70, #2563a7);
+}
+
+.title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.subtitle { -fx-text-fill: #d8e8ff; }
+
+.form-card {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #dbe4ef;
+    -fx-border-radius: 8;
+}
+
+.button { -fx-cursor: hand; -fx-background-radius: 5; }
+.button-primary { -fx-background-color: #1769aa; -fx-text-fill: white; }
+.button-danger { -fx-background-color: #b4232c; -fx-text-fill: white; }
+.selection-label { -fx-text-fill: #4b5d73; -fx-font-style: italic; }
+
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #dbe4ef;
+    -fx-border-radius: 6;
+}
+
+.table-view .column-header-background { -fx-background-color: #e7eef8; }
+.table-row-cell:selected { -fx-background-color: #cfe3ff; }
+.table-row-cell:selected .text { -fx-fill: #15243a; }
+
+.status-bar {
+    -fx-background-color: #e7eef8;
+    -fx-border-color: #d3deeb transparent transparent transparent;
+}
