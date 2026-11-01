@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- Database connection settings (Default template, override via environment variables or local config) -->
+        <property name="connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
+        <property name="connection.url">jdbc:sqlserver://localhost:1433;databaseName=LibraryDB;encrypt=true;trustServerCertificate=true;</property>
+        <property name="connection.username">sa</property>
+        <property name="connection.password"></property>
+
+        <!-- SQL dialect -->
+        <property name="dialect">org.hibernate.dialect.SQLServerDialect</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+
+        <!-- Safe schema strategy: validate schema against existing database tables -->
+        <property name="hibernate.hbm2ddl.auto">validate</property>
+
+        <!-- Entity mappings -->
+        <mapping class="com.library.entity.Student"/>
+        <mapping class="com.library.entity.Book"/>
+    </session-factory>
+</hibernate-configuration>

@@ -1,0 +1,6 @@
+# Local Database Configuration Example
+# Copy this file to 'db.local.properties' (which is git-ignored) and fill in your local settings:
+#
+# db.url=jdbc:sqlserver://localhost:1433;databaseName=LibraryDB;encrypt=true;trustServerCertificate=true;
+# db.user=sa
+# db.password=your_local_password
