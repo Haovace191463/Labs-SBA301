@@ -1,0 +1,273 @@
+{
+  "info": {
+    "name": "FUMiniHotelSystem_A3HaoVA_SE1910_Postman_Collection",
+    "description": "API Test Collection for Assignment 03 - FU Mini Hotel Management System (HaoVA - SE1910)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api", "type": "string" },
+    { "key": "customerToken", "value": "", "type": "string" },
+    { "key": "staffToken", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "1.1 Staff Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data) {",
+                  "    pm.collectionVariables.set('staffToken', jsonData.data.token);",
+                  "}",
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Role is ROLE_STAFF', function () { pm.expect(jsonData.data.role).to.eql('ROLE_STAFF'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"staff@fuminihotel.com\",\n  \"password\": \"Staff@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/staff/login", "host": ["{{baseUrl}}"], "path": ["auth", "staff", "login"] }
+          }
+        },
+        {
+          "name": "1.2 Customer Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerFullName\": \"Nguyen Van Customer\",\n  \"emailAddress\": \"newcustomer@fuminihotel.com\",\n  \"telephone\": \"0987654321\",\n  \"customerBirthday\": \"2000-01-15\",\n  \"password\": \"Customer@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/customer/register", "host": ["{{baseUrl}}"], "path": ["auth", "customer", "register"] }
+          }
+        },
+        {
+          "name": "1.3 Customer Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data) {",
+                  "    pm.collectionVariables.set('customerToken', jsonData.data.token);",
+                  "}",
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Role is ROLE_CUSTOMER', function () { pm.expect(jsonData.data.role).to.eql('ROLE_CUSTOMER'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"haova@fuminihotel.com\",\n  \"password\": \"Customer@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/customer/login", "host": ["{{baseUrl}}"], "path": ["auth", "customer", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Public Room Endpoints",
+      "item": [
+        {
+          "name": "2.1 View All Rooms (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/rooms", "host": ["{{baseUrl}}"], "path": ["rooms"] }
+          }
+        },
+        {
+          "name": "2.2 Search Rooms (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rooms/search?maxCapacity=2&minPrice=40&maxPrice=120",
+              "host": ["{{baseUrl}}"],
+              "path": ["rooms", "search"],
+              "query": [
+                { "key": "maxCapacity", "value": "2" },
+                { "key": "minPrice", "value": "40" },
+                { "key": "maxPrice", "value": "120" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.3 View Room Details (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/rooms/1", "host": ["{{baseUrl}}"], "path": ["rooms", "1"] }
+          }
+        },
+        {
+          "name": "2.4 View Room Types (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/room-types", "host": ["{{baseUrl}}"], "path": ["room-types"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Customer Operations (Protected)",
+      "item": [
+        {
+          "name": "3.1 View Own Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/customer/profile", "host": ["{{baseUrl}}"], "path": ["customer", "profile"] }
+          }
+        },
+        {
+          "name": "3.2 Update Own Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerFullName\": \"Vo Anh Hao Updated\",\n  \"telephone\": \"0901234567\",\n  \"customerBirthday\": \"2003-05-15\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/customer/profile", "host": ["{{baseUrl}}"], "path": ["customer", "profile"] }
+          }
+        },
+        {
+          "name": "3.3 Create Online Booking (1 or Many Rooms)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"roomId\": 1,\n      \"startDate\": \"2026-11-05\",\n      \"endDate\": \"2026-11-08\"\n    },\n    {\n      \"roomId\": 2,\n      \"startDate\": \"2026-11-05\",\n      \"endDate\": \"2026-11-08\"\n    }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/customer/bookings", "host": ["{{baseUrl}}"], "path": ["customer", "bookings"] }
+          }
+        },
+        {
+          "name": "3.4 View Own Booking History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/customer/bookings", "host": ["{{baseUrl}}"], "path": ["customer", "bookings"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Staff Operations (Protected)",
+      "item": [
+        {
+          "name": "4.1 Manage Customers - List & Search",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }],
+            "url": { "raw": "{{baseUrl}}/staff/customers?search=Hao", "host": ["{{baseUrl}}"], "path": ["staff", "customers"], "query": [{ "key": "search", "value": "Hao" }] }
+          }
+        },
+        {
+          "name": "4.2 Manage Rooms - List All",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }],
+            "url": { "raw": "{{baseUrl}}/staff/rooms", "host": ["{{baseUrl}}"], "path": ["staff", "rooms"] }
+          }
+        },
+        {
+          "name": "4.3 Create New Room",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roomNumber\": \"401\",\n  \"roomDetailDescription\": \"Top floor penthouse suite\",\n  \"roomMaxCapacity\": 4,\n  \"roomTypeId\": 3,\n  \"roomStatus\": 1,\n  \"roomPricePerDay\": 250.00\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/staff/rooms", "host": ["{{baseUrl}}"], "path": ["staff", "rooms"] }
+          }
+        },
+        {
+          "name": "4.4 Delete Room (Safe Deletion Rule)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }],
+            "url": { "raw": "{{baseUrl}}/staff/rooms/1", "host": ["{{baseUrl}}"], "path": ["staff", "rooms", "1"] }
+          }
+        },
+        {
+          "name": "4.5 View All Reservations & Details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }],
+            "url": { "raw": "{{baseUrl}}/staff/bookings", "host": ["{{baseUrl}}"], "path": ["staff", "bookings"] }
+          }
+        },
+        {
+          "name": "4.6 Update Reservation Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": 2\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/staff/bookings/1/status", "host": ["{{baseUrl}}"], "path": ["staff", "bookings", "1", "status"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Authorization Failures (401 & 403 Tests)",
+      "item": [
+        {
+          "name": "5.1 Unauthenticated Access to Staff Endpoints (Expected 401/403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/staff/rooms", "host": ["{{baseUrl}}"], "path": ["staff", "rooms"] }
+          }
+        },
+        {
+          "name": "5.2 Customer Token Accessing Staff Endpoints (Expected 403 Forbidden)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/staff/rooms", "host": ["{{baseUrl}}"], "path": ["staff", "rooms"] }
+          }
+        }
+      ]
+    }
+  ]
+}
+
