@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" prefHeight="450.0" prefWidth="420.0" spacing="20.0" stylesheets="@../css/style.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.library.controller.LoginController">
+    <padding>
+        <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+    </padding>
+
+    <VBox alignment="CENTER" spacing="6.0">
+        <Label styleClass="header-title" text="Library System" />
+        <Label styleClass="subtitle" text="Sign in to access Student Management" />
+    </VBox>
+
+    <VBox spacing="14.0" styleClass="card-pane">
+        <VBox spacing="4.0">
+            <Label styleClass="form-label" text="Email Address" />
+            <TextField fx:id="txtEmail" promptText="e.g. s29@fu.edu.vn" onAction="#handleLogin" />
+        </VBox>
+
+        <VBox spacing="4.0">
+            <Label styleClass="form-label" text="Password" />
+            <PasswordField fx:id="txtPassword" promptText="Enter your password" onAction="#handleLogin" />
+        </VBox>
+
+        <Label fx:id="lblError" styleClass="error-label" text="" wrapText="true" />
+
+        <Button fx:id="btnLogin" defaultButton="true" maxWidth="Infinity" onAction="#handleLogin"
+                styleClass="btn-primary" text="Sign In" />
+    </VBox>
+</VBox>
